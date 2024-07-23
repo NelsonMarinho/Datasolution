@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Embarques</title>
+    <title>Sistema Data Solution</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
     <style>
@@ -147,7 +147,7 @@
             <a class="nav-link nav-link-custom" href="#" onclick="openPage('Registro', this)" id="defaultOpen">Registro</a>
             <a class="nav-link nav-link-custom" href="analysis.html">Painel Análises</a>
         </div>
-        <h1 class="text-center mb-4">Gestão de Embarques Ferroviário</h1>
+        <h1 class="text-center mb-4" style="color: #1e90ff;">Painel de Controle Embarques Ferroviários</h1>
         <div id="Registro" class="tabcontent my-4">
             <div class="row justify-content-center">
                 <div class="col-md-6">
@@ -184,6 +184,7 @@
                                     <option value="C056">C056</option>
                                     <option value="C059">C059</option>
                                     <option value="C071">C071</option>
+                                  <option value="CHS">CHS</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -205,24 +206,29 @@
             </div>
             <div class="row justify-content-center mt-4">
                 <div class="col-md-10 text-center">
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#carregamentoModal">Ver Carregamentos</button>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#searchModal">Buscar Carregamentos por Data</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para lista de carregamentos -->
-    <div class="modal fade" id="carregamentoModal" tabindex="-1" role="dialog" aria-labelledby="carregamentoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+    <!-- Modal para busca de carregamentos -->
+    <div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="carregamentoModalLabel">Lista de Carregamentos</h5>
+                    <h5 class="modal-title" id="searchModalLabel">Buscar Carregamentos</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="table-responsive">
+                    <div class="form-group">
+                        <label for="searchDate">Selecione a Data:</label>
+                        <input type="date" class="form-control" id="searchDate">
+                    </div>
+                    <button class="btn btn-primary" onclick="searchByDate()">Buscar</button>
+                    <div class="table-responsive mt-4" id="searchResults" style="display: none;">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -236,8 +242,8 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="carregamentoTableBody">
-                                <!-- Dados serão inseridos aqui via JavaScript -->
+                            <tbody id="searchResultsBody">
+                                <!-- Resultados da busca serão inseridos aqui via JavaScript -->
                             </tbody>
                         </table>
                     </div>
@@ -326,7 +332,7 @@
                 }
             })
             .catch(error => {
-                console.error('Erro:', error);
+                console.error('Erro ao registrar a expedição:', error);
                 alert('Erro ao registrar a expedição.');
             });
         });
@@ -337,32 +343,45 @@
             .then(data => {
                 if (data.success) {
                     const tableBody = document.getElementById('carregamentoTableBody');
-                    tableBody.innerHTML = '';
-                    data.carregamentos.forEach(carregamento => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${carregamento.data}</td>
-                            <td>${carregamento.composicao}</td>
-                            <td>${carregamento.vagoes}</td>
-                            <td>${carregamento.destino}</td>
-                            <td>${carregamento.filial}</td>
-                            <td>${carregamento.material}</td>
-                            <td>${carregamento.volume}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="confirmEditCarregamento(${carregamento.id}, '${carregamento.composicao}')">Editar</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteCarregamento(${carregamento.id})">Excluir</button>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
+                    if (tableBody) {
+                        tableBody.innerHTML = '';
+                        data.carregamentos.forEach(carregamento => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${formatDate(carregamento.data)}</td>
+                                <td>${carregamento.composicao}</td>
+                                <td>${carregamento.vagoes}</td>
+                                <td>${carregamento.destino}</td>
+                                <td>${carregamento.filial}</td>
+                                <td>${carregamento.material}</td>
+                                <td>${formatVolume(carregamento.volume)}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="confirmEditCarregamento(${carregamento.id}, '${carregamento.composicao}')">Editar</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteCarregamento(${carregamento.id})">Excluir</button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Elemento "carregamentoTableBody" não encontrado no DOM.');
+                    }
                 } else {
-                    alert('Erro ao carregar os carregamentos.');
+                    alert('Erro ao carregar os carregamentos: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Erro ao carregar dados:', error);
+                console.error('Erro ao carregar os carregamentos:', error);
                 alert('Erro ao carregar os carregamentos.');
             });
+        }
+
+        function formatDate(dateString) {
+            const dateParts = dateString.split("-");
+            return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+        }
+
+        function formatVolume(volume) {
+            return volume.toLocaleString('pt-BR') + ' kg';
         }
 
         function confirmEditCarregamento(id, composicao) {
@@ -415,7 +434,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Erro:', error);
+                    console.error('Erro ao excluir a expedição:', error);
                     alert('Erro ao excluir a expedição.');
                 });
             }
@@ -433,6 +452,53 @@
             }
             document.getElementById(pageName).style.display = "block";
             elmnt.className += " active";
+        }
+
+        function searchByDate() {
+            const searchDate = document.getElementById('searchDate').value;
+            if (!searchDate) {
+                alert('Por favor, selecione uma data.');
+                return;
+            }
+
+            console.log('Buscando carregamentos para a data:', searchDate); // Log de depuração
+
+            fetch('/carregamentos')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Carregamentos recebidos:', data.carregamentos); // Log de depuração
+                    const searchResults = document.getElementById('searchResults');
+                    const searchResultsBody = document.getElementById('searchResultsBody');
+                    searchResultsBody.innerHTML = '';
+                    data.carregamentos.forEach(carregamento => {
+                        if (carregamento.data === searchDate) {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${formatDate(carregamento.data)}</td>
+                                <td>${carregamento.composicao}</td>
+                                <td>${carregamento.vagoes}</td>
+                                <td>${carregamento.destino}</td>
+                                <td>${carregamento.filial}</td>
+                                <td>${carregamento.material}</td>
+                                <td>${formatVolume(carregamento.volume)}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="confirmEditCarregamento(${carregamento.id}, '${carregamento.composicao}')">Editar</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteCarregamento(${carregamento.id})">Excluir</button>
+                                </td>
+                            `;
+                            searchResultsBody.appendChild(row);
+                        }
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    alert('Nenhum carregamento encontrado para a data selecionada.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar carregamentos:', error);
+                alert('Erro ao buscar carregamentos.');
+            });
         }
 
         // Defina a aba padrão aberta

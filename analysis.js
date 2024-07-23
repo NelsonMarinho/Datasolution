@@ -5,13 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 const carregamentos = data.carregamentos;
 
-                // Inicializa gráficos
-                const totalCarregadoChart = initializeChart('totalCarregadoChart', 'Total Carregado no Mês', 'kg');
-                const totalVagoesChart = initializeChart('totalVagoesChart', 'Total de Vagões no Mês');
-                const totalPorDestinoChart = initializeChart('totalPorDestinoChart', 'Total por Destino', 'kg', 'pie');
-                const quantidadeCarregamentosChart = initializeChart('quantidadeCarregamentosChart', 'Quantidade de Carregamentos por Mês');
-                const totalPorFilialChart = initializeChart('totalPorFilialChart', 'Total por Filial', 'kg');
-
                 // Popula o seletor de anos
                 const yearSelect = document.getElementById('yearSelect');
                 const years = Array.from(new Set(carregamentos.map(c => c.data.substring(0, 4)))).sort();
@@ -24,14 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Adicionar evento de mudança aos seletores de material e ano
                 document.getElementById('materialSelect').addEventListener('change', function() {
-                    updateCharts(carregamentos, totalCarregadoChart, totalVagoesChart, totalPorDestinoChart, quantidadeCarregamentosChart, totalPorFilialChart);
+                    updateCharts(carregamentos);
+                    updateTotalExpedido(carregamentos);
                 });
                 document.getElementById('yearSelect').addEventListener('change', function() {
-                    updateCharts(carregamentos, totalCarregadoChart, totalVagoesChart, totalPorDestinoChart, quantidadeCarregamentosChart, totalPorFilialChart);
+                    updateCharts(carregamentos);
+                    updateTotalExpedido(carregamentos);
                 });
 
                 // Inicializa a visualização com todos os dados
-                updateCharts(carregamentos, totalCarregadoChart, totalVagoesChart, totalPorDestinoChart, quantidadeCarregamentosChart, totalPorFilialChart);
+                updateCharts(carregamentos);
+                updateTotalExpedido(carregamentos);
             } else {
                 alert('Erro ao carregar os carregamentos.');
             }
@@ -41,119 +37,250 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 });
 
-function initializeChart(chartId, label, unit = '', type = 'bar') {
-    const ctx = document.getElementById(chartId).getContext('2d');
-    return new Chart(ctx, {
-        type: type,
-        data: {
-            labels: [],
-            datasets: [{
-                label: label,
-                data: [],
-                backgroundColor: [],
-                borderColor: [],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: type === 'bar' ? {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        display: true,
-                        color: 'rgba(200, 200, 200, 0.3)'
-                    },
-                    ticks: {
-                        color: '#333',
-                        callback: function(value) {
-                            return value + unit;
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: '#333'
-                    }
-                }
-            } : {},
-            plugins: {
-                legend: {
-                    display: type !== 'bar',
-                    position: 'top',
-                    labels: {
-                        color: '#333',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    }
-                },
-                datalabels: {
-                    anchor: 'end',
-                    align: 'top',
-                    color: '#333',
-                    font: {
-                        weight: 'bold'
-                    },
-                    formatter: function(value) {
-                        return value.toLocaleString(); // Formatação com separadores de milhar
-                    }
-                }
-            }
-        }
-    });
-}
-
-function updateCharts(carregamentos, totalCarregadoChart, totalVagoesChart, totalPorDestinoChart, quantidadeCarregamentosChart, totalPorFilialChart) {
+function updateCharts(carregamentos) {
     const material = document.getElementById('materialSelect').value;
     const year = document.getElementById('yearSelect').value;
 
+    updateTotalCarregadoPlotly(carregamentos, material, year);
+    updateTotalPorFilialPlotly(carregamentos, material, year);
+    updateQuantidadeCarregamentosPlotly(carregamentos, material, year);
+    updateTotalVagoesPlotly(carregamentos, material, year);
+    updateTotalPorDestinoPlotly(carregamentos, material, year);
+}
+
+function updateTotalExpedido(carregamentos) {
+    const material = document.getElementById('materialSelect').value;
+    const year = document.getElementById('yearSelect').value;
+
+    let totalExpedido = 0;
+
+    carregamentos.forEach(c => {
+        if ((material !== 'todos' && c.material !== material) || (year !== 'todos' && c.data.substring(0, 4) !== year)) {
+            return;
+        }
+        totalExpedido += parseFloat(c.volume);
+    });
+
+    document.getElementById('totalExpedido').textContent = totalExpedido.toLocaleString('pt-BR') + ' kg';
+}
+
+function updateTotalCarregadoPlotly(carregamentos, material, year) {
     const totalPorMes = {};
-    const totalVagoesPorMes = {};
-    const totalPorDestino = {};
+
+    carregamentos.forEach(c => {
+        if ((material !== 'todos' && c.material !== material) || (year !== 'todos' && c.data.substring(0, 4) !== year)) {
+            return;
+        }
+
+        const mes = c.data.substring(0, 7);
+        const mesFormatado = formatarMesAno(mes);
+
+        if (!totalPorMes[mesFormatado]) totalPorMes[mesFormatado] = 0;
+
+        totalPorMes[mesFormatado] += parseFloat(c.volume);
+    });
+
+    const labels = Object.keys(totalPorMes);
+    const values = Object.values(totalPorMes);
+
+    const data = [{
+        x: labels,
+        y: values,
+        type: 'bar',
+        text: values.map(value => value.toLocaleString('pt-BR') + ' kg'),
+        texttemplate: '%{text}',
+        textposition: 'auto',
+        hoverinfo: 'text',
+        marker: {
+            color: labels.map((_, index) => getBootstrapColor(index))
+        }
+    }];
+
+    const layout = {
+        title: 'Total Carregado no Mês',
+        xaxis: {
+            title: 'Mês'
+        },
+        yaxis: {
+            showticklabels: false
+        }
+    };
+
+    Plotly.newPlot('totalCarregadoChart', data, layout);
+}
+
+function updateTotalPorFilialPlotly(carregamentos, material, year) {
     const totalPorFilial = {};
+
+    carregamentos.forEach(c => {
+        if ((material !== 'todos' && c.material !== material) || (year !== 'todos' && c.data.substring(0, 4) !== year)) {
+            return;
+        }
+
+        if (!totalPorFilial[c.filial]) totalPorFilial[c.filial] = 0;
+
+        totalPorFilial[c.filial] += parseFloat(c.volume);
+    });
+
+    const labels = Object.keys(totalPorFilial);
+    const values = Object.values(totalPorFilial);
+
+    const data = [{
+        x: labels,
+        y: values,
+        type: 'bar',
+        text: values.map(value => value.toLocaleString('pt-BR') + ' kg'),
+        texttemplate: '%{text}',
+        textposition: 'auto',
+        hoverinfo: 'text',
+        marker: {
+            color: labels.map((_, index) => getBootstrapColor(index))
+        }
+    }];
+
+    const layout = {
+        title: 'Total expedido por Filial',
+        xaxis: {
+            title: 'Filial'
+        },
+        yaxis: {
+            showticklabels: false
+        }
+    };
+
+    Plotly.newPlot('totalPorFilialChart', data, layout);
+}
+
+function updateQuantidadeCarregamentosPlotly(carregamentos, material, year) {
     const quantidadePorMes = {};
 
     carregamentos.forEach(c => {
         if ((material !== 'todos' && c.material !== material) || (year !== 'todos' && c.data.substring(0, 4) !== year)) {
             return;
         }
-        
+
         const mes = c.data.substring(0, 7);
-        const mesFormatado = mes.split('-').reverse().join('-');
+        const mesFormatado = formatarMesAno(mes);
 
-        if (!totalPorMes[mesFormatado]) totalPorMes[mesFormatado] = 0;
-        if (!totalVagoesPorMes[mesFormatado]) totalVagoesPorMes[mesFormatado] = 0;
-        if (!totalPorDestino[c.destino]) totalPorDestino[c.destino] = 0;
         if (!quantidadePorMes[mesFormatado]) quantidadePorMes[mesFormatado] = 0;
-        if (!totalPorFilial[c.filial]) totalPorFilial[c.filial] = 0;
 
-        totalPorMes[mesFormatado] += parseFloat(c.volume);
-        totalVagoesPorMes[mesFormatado] += parseInt(c.vagoes);
-        totalPorDestino[c.destino] += parseFloat(c.volume);
-        totalPorFilial[c.filial] += parseFloat(c.volume);
         quantidadePorMes[mesFormatado] += 1; // Incrementa a quantidade de carregamentos no mês
     });
 
-    // Atualiza os gráficos com os novos dados filtrados
-    updateChart(totalCarregadoChart, Object.keys(totalPorMes), Object.values(totalPorMes), 'kg');
-    updateChart(totalVagoesChart, Object.keys(totalVagoesPorMes), Object.values(totalVagoesPorMes));
-    updateChart(totalPorDestinoChart, Object.keys(totalPorDestino), Object.values(totalPorDestino), 'kg');
-    updateChart(quantidadeCarregamentosChart, Object.keys(quantidadePorMes), Object.values(quantidadePorMes));
-    updateChart(totalPorFilialChart, Object.keys(totalPorFilial), Object.values(totalPorFilial), 'kg');
+    const labels = Object.keys(quantidadePorMes);
+    const values = Object.values(quantidadePorMes);
+
+    const data = [{
+        x: labels,
+        y: values,
+        type: 'bar',
+        text: values.map(value => value.toLocaleString('pt-BR')),
+        texttemplate: '%{text}',
+        textposition: 'auto',
+        hoverinfo: 'text',
+        marker: {
+            color: labels.map((_, index) => getBootstrapColor(index))
+        }
+    }];
+
+    const layout = {
+        title: 'Quantidade de Carregamentos por Mês',
+        xaxis: {
+            title: 'Mês'
+        },
+        yaxis: {
+            showticklabels: false
+        }
+    };
+
+    Plotly.newPlot('quantidadeCarregamentosChart', data, layout);
 }
 
-function updateChart(chart, labels, data, unit = '') {
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = data;
-    chart.data.datasets[0].backgroundColor = labels.map((_, index) => getBootstrapColor(index));
-    chart.data.datasets[0].borderColor = labels.map((_, index) => getBootstrapColor(index).replace('0.7', '1'));
-    chart.update();
+function updateTotalVagoesPlotly(carregamentos, material, year) {
+    const totalVagoesPorMes = {};
+
+    carregamentos.forEach(c => {
+        if ((material !== 'todos' && c.material !== material) || (year !== 'todos' && c.data.substring(0, 4) !== year)) {
+            return;
+        }
+
+        const mes = c.data.substring(0, 7);
+        const mesFormatado = formatarMesAno(mes);
+
+        if (!totalVagoesPorMes[mesFormatado]) totalVagoesPorMes[mesFormatado] = 0;
+
+        totalVagoesPorMes[mesFormatado] += parseInt(c.vagoes);
+    });
+
+    const labels = Object.keys(totalVagoesPorMes);
+    const values = Object.values(totalVagoesPorMes);
+
+    const data = [{
+        x: labels,
+        y: values,
+        type: 'bar',
+        text: values.map(value => value.toLocaleString('pt-BR')),
+        texttemplate: '%{text}',
+        textposition: 'auto',
+        hoverinfo: 'text',
+        marker: {
+            color: labels.map((_, index) => getBootstrapColor(index))
+        }
+    }];
+
+    const layout = {
+        title: 'Total de Vagões no Mês',
+        xaxis: {
+            title: 'Mês'
+        },
+        yaxis: {
+            showticklabels: false
+        }
+    };
+
+    Plotly.newPlot('totalVagoesChart', data, layout);
+}
+
+function updateTotalPorDestinoPlotly(carregamentos, material, year) {
+    const totalPorDestino = {};
+
+    carregamentos.forEach(c => {
+        if ((material !== 'todos' && c.material !== material) || (year !== 'todos' && c.data.substring(0, 4) !== year)) {
+            return;
+        }
+
+        if (!totalPorDestino[c.destino]) totalPorDestino[c.destino] = 0;
+
+        totalPorDestino[c.destino] += parseFloat(c.volume);
+    });
+
+    const labels = Object.keys(totalPorDestino);
+    const values = Object.values(totalPorDestino);
+
+    const data = [{
+        x: labels,
+        y: values,
+        type: 'bar',
+        text: values.map(value => value.toLocaleString('pt-BR') + ' kg'),
+        texttemplate: '%{text}',
+        textposition: 'auto',
+        hoverinfo: 'text',
+        marker: {
+            color: labels.map((_, index) => getBootstrapColor(index))
+        }
+    }];
+
+    const layout = {
+        title: 'Volume expedido por Destino',
+        xaxis: {
+            title: 'Destino'
+        },
+        yaxis: {
+            showticklabels: false
+        }
+    };
+
+    Plotly.newPlot('totalPorDestinoChart', data, layout);
 }
 
 const bootstrapColors = [
@@ -169,4 +296,10 @@ const bootstrapColors = [
 
 function getBootstrapColor(index) {
     return bootstrapColors[index % bootstrapColors.length];
+}
+
+function formatarMesAno(mesAno) {
+    const [ano, mes] = mesAno.split('-');
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    return `${meses[parseInt(mes) - 1]}-${ano}`;
 }

@@ -3,17 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise dos Dados</title>
+    <title>Sistema Data Solution</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <link href="styles.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            background-image: url("analise.webp");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
-
+    
+        .header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    
+        .header img {
+            height: 40px;
+        }
+    
+        .container {
+            padding-top: 80px;
+        }
+    
         .btn-custom {
             background-color: #007bff;
             border: none;
@@ -28,13 +61,13 @@
             cursor: pointer;
             box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
         }
-
+    
         .btn-custom:hover {
             background-color: white;
             color: black;
             border: 2px solid #007bff;
         }
-
+    
         .card-header {
             display: flex;
             justify-content: center;
@@ -46,42 +79,40 @@
             border-radius: 12px 12px 0 0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
+    
         .card-header.bg-success {
             background-color: #28a745 !important;
         }
-
+    
         .card-header.bg-warning {
             background-color: #ffc107 !important;
         }
-
+    
         .card-header.bg-info {
             background-color: #17a2b8 !important;
         }
-
+    
         .card-header.bg-danger {
             background-color: #dc3545 !important;
         }
-
+    
         .card {
             margin-bottom: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border: 1px solid #ddd;
+            background-color: rgba(255, 255, 255, 0.9);
         }
-
-        canvas {
-            margin-top: 20px;
-        }
-
+    
         h1 {
             margin-bottom: 40px;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            color: #333;
-            text-align: center;
+        font-size: 3rem; /* Aumentando o tamanho da fonte */
+        text-transform: uppercase;
+        color: #007bff; /* Cor azul para destacar */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Sombra para destacar */
+        text-align: center;
         }
-
+    
         .chart-container {
             position: relative;
             height: 400px;
@@ -91,97 +122,156 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border: 1px solid #ddd;
         }
-
+    
         .chart-title {
             text-align: center;
             font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 20px;
         }
-
+    
         .selection-container {
             display: flex;
-            justify-content: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-
+    
         .selection-container label {
             font-weight: bold;
             margin-right: 10px;
             font-size: 1.2rem;
             color: #333;
         }
-
+    
         .selection-container select {
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 1rem;
             margin-right: 20px;
+            margin-bottom: 10px;
         }
-
+    
+        .total-expedido-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+    
+        .total-expedido-container .card {
+            margin-bottom: 0;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        .total-expedido-container .card-body {
+            padding: 10px 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+        }
+    
+        .total-expedido-container .total-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #007bff;
+        }
+    
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            text-align: center;
+        }
+    
         @media (max-width: 767px) {
             .chart-container {
                 height: 300px;
                 padding: 10px;
             }
-
+    
             .selection-container {
                 flex-direction: column;
+                align-items: center;
             }
-
+    
             .selection-container select {
                 margin-right: 0;
                 margin-bottom: 10px;
+                width: 100%;
+            }
+    
+            .total-expedido-container {
+                width: 100%;
+                align-items: center;
+                margin-top: 10px;
             }
         }
-
+    
         @media (max-width: 575px) {
             h1 {
                 font-size: 2rem;
             }
-
+    
             .card-header {
                 font-size: 1rem;
             }
-
+    
             .chart-container {
                 height: 250px;
                 padding: 10px;
             }
         }
-    </style>
+    </style>    
 </head>
 <body>
+    <div class="header">
+        <img src="Data Solution.webp" alt="Logo">
+        <h1>SISTEMA DATA SOLUTION</h1>
+    </div>
     <div class="container">
         <a href="index.html" class="btn btn-custom my-4">Inserir Dados Carregamento</a>
-        <h1 class="text-center my-4">Análise das Expedições Ferroviárias</h1>
+        <h1 class="text-center my-4">Painel de Análise </h1>
         
         <div class="selection-container">
-            <label for="materialSelect">Selecione o Material:</label>
-            <select id="materialSelect">
-                <option value="todos">Todos</option>
-                <option value="Soja">Soja</option>
-                <option value="Milho">Milho</option>
-            </select>
-            <label for="yearSelect">Selecione o Ano:</label>
-            <select id="yearSelect">
-                <option value="todos">Todos</option>
-                <!-- Opções de anos serão adicionadas dinamicamente -->
-            </select>
+            <div>
+                <label for="materialSelect">Selecione o Material:</label>
+                <select id="materialSelect">
+                    <option value="todos">Todos</option>
+                    <option value="Soja">Soja</option>
+                    <option value="Milho">Milho</option>
+                </select>
+                <label for="yearSelect">Selecione o Ano:</label>
+                <select id="yearSelect">
+                    <option value="todos">Todos</option>
+                    <!-- Opções de anos serão adicionadas dinamicamente -->
+                </select>
+            </div>
+            <div class="total-expedido-container">
+                <span class="total-title">Volume Total Expedido</span>
+                <div class="card shadow-sm">
+                    <div class="card-body bg-primary text-white">
+                        <span id="totalExpedido">0 kg</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h5>Total Expedido</h5>
+                        <h5>Total Expedido Mensal</h5>
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="totalCarregadoChart"></canvas>
-                        </div>
+                        <div class="chart-container" id="totalCarregadoChart"></div>
                     </div>
                 </div>
             </div>
@@ -191,12 +281,10 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h5>Total Vagões</h5>
+                        <h5>Total de Vagões Mensal</h5>
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="totalVagoesChart"></canvas>
-                        </div>
+                        <div class="chart-container" id="totalVagoesChart"></div>
                     </div>
                 </div>
             </div>
@@ -206,12 +294,10 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-header bg-warning text-white">
-                        <h5>Total por Destino</h5>
+                        <h5>Volume expedido por Destino</h5>
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="totalPorDestinoChart"></canvas>
-                        </div>
+                        <div class="chart-container" id="totalPorDestinoChart"></div>
                     </div>
                 </div>
             </div>
@@ -224,9 +310,7 @@
                         <h5>Quantidade de Carregamentos por Mês</h5>
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="quantidadeCarregamentosChart"></canvas>
-                        </div>
+                        <div class="chart-container" id="quantidadeCarregamentosChart"></div>
                     </div>
                 </div>
             </div>
@@ -236,18 +320,20 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-header bg-danger text-white">
-                        <h5>Total por Filial</h5>
+                        <h5>Total expedido por Filial</h5>
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="totalPorFilialChart"></canvas>
-                        </div>
+                        <div class="chart-container" id="totalPorFilialChart"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="footer">
+        <p>&copy; 2024 Sistema Data Solution. Todos os direitos reservados.</p>
+    </div>
 
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="analysis.js"></script>
 </body>
 </html>
