@@ -1,13 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
 
-// Conectar ao banco de dados SQLite
 const db = new sqlite3.Database('./mydatabase.db');
 
-// Verificar a estrutura da tabela users
-db.all('PRAGMA table_info(users)', [], (err, rows) => {
-    if (err) {
-        return console.error('Erro ao recuperar a estrutura da tabela:', err.message);
-    }
-    console.log('Estrutura da tabela users:', rows);
-    db.close();
-});
+// Criar a tabela users se não existir
+db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL
+)`);
+
+console.log('Tabela users verificada ou criada com sucesso.');
+db.close();

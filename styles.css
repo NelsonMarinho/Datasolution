@@ -82,5 +82,17 @@ h1 {
 /* Estilo do conteúdo das abas */
 .tabcontent {
     display: none;
-    padding: 20px;
+    padding: 20px;
+}
+
+/* Estilo para mensagens centralizadas */
+.centered-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

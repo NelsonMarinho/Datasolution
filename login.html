@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema Data Solution</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("background_login.webp");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5); /* Ajuste a opacidade conforme necessário */
+        }
+        .login-container {
+            position: relative;
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.9); /* Fundo quase transparente */
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .login-container h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+            color: #007bff;
+        }
+        .login-container h3 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #007bff;
+        }
+        .login-container .version {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            float: left;
+            font-weight: bold;
+            color: #333;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border-radius: 15px;
+            padding: 10px;
+        }
+        .btn-custom:hover {
+            background-color: white;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+        .form-control {
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="login-container">
+        <h1>Sistema Data Solution</h1>
+        <div class="version">Versão 4.3.5</div>
+        <h3>Login</h3>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" required autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-custom btn-block">Login</button>
+        </form>
+        <div id="loginMessage" class="alert alert-danger mt-3" style="display: none;">Invalid username or password</div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/index';
+                } else {
+                    const loginMessage = document.getElementById('loginMessage');
+                    loginMessage.textContent = data.message;
+                    loginMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error during login:', error);
+                const loginMessage = document.getElementById('loginMessage');
+                loginMessage.textContent = 'Error during login';
+                loginMessage.style.display = 'block';
+            });
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -8,7 +8,7 @@
     <link href="styles.css" rel="stylesheet">
     <style>
         body {
-            background-image: url("embarques.webp");
+            background-image: url("Terminal_index.webp");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -83,10 +83,26 @@
             padding: 15px;
         }
         .table-responsive {
-            max-height: 300px; /* Altura máxima da tabela rolável */
-            max-width: 100%; /* Largura máxima da tabela rolável */
+            max-height: 300px;
+            max-width: 100%;
             overflow-x: auto;
             overflow-y: auto;
+        }
+        .highlight-table {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: black;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .table th, .table td {
+            padding: 15px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .table thead th {
+            background-color: #007bff;
+            color: white;
         }
         @media (max-width: 576px) {
             .modal-dialog {
@@ -146,6 +162,8 @@
         <div class="text-center mb-4">
             <a class="nav-link nav-link-custom" href="#" onclick="openPage('Registro', this)" id="defaultOpen">Registro</a>
             <a class="nav-link nav-link-custom" href="analysis.html">Painel Análises</a>
+            <a class="nav-link nav-link-custom" href="#" onclick="openPage('VerCarregamentos', this)">Ver Carregamentos</a>
+            <a class="nav-link nav-link-custom" href="/logout">Logout</a>
         </div>
         <h1 class="text-center mb-4" style="color: #1e90ff;">Painel de Controle Embarques Ferroviários</h1>
         <div id="Registro" class="tabcontent my-4">
@@ -184,7 +202,7 @@
                                     <option value="C056">C056</option>
                                     <option value="C059">C059</option>
                                     <option value="C071">C071</option>
-                                  <option value="CHS">CHS</option>
+                                    <option value="CHS">CHS</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -204,31 +222,24 @@
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center mt-4">
-                <div class="col-md-10 text-center">
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#searchModal">Buscar Carregamentos por Data</button>
+        </div>
+        <div id="VerCarregamentos" class="tabcontent my-4" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card p-4 shadow-lg card-custom">
+                        <form id="searchForm">
+                            <div class="form-group">
+                                <label for="searchDate">Selecione a Data:</label>
+                                <input type="date" class="form-control" id="searchDate" required>
+                            </div>
+                            <button type="submit" class="nav-link-custom btn-block">Buscar Carregamentos</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal para busca de carregamentos -->
-    <div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="searchModalLabel">Buscar Carregamentos</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="searchDate">Selecione a Data:</label>
-                        <input type="date" class="form-control" id="searchDate">
-                    </div>
-                    <button class="btn btn-primary" onclick="searchByDate()">Buscar</button>
-                    <div class="table-responsive mt-4" id="searchResults" style="display: none;">
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-10">
+                    <div class="table-responsive highlight-table">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -244,6 +255,51 @@
                             </thead>
                             <tbody id="searchResultsBody">
                                 <!-- Resultados da busca serão inseridos aqui via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="Admin" class="tabcontent my-4" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card p-4 shadow-lg card-custom">
+                        <form id="userForm">
+                            <div class="form-group">
+                                <label for="username">Username:</label>
+                                <input type="text" class="form-control" id="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Role:</label>
+                                <select class="form-control" id="role" required>
+                                    <option value="user">User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="nav-link-custom btn-block" id="createUserButton">Create User</button>
+                        </form>
+                        <div id="userMessage" class="alert alert-success centered-message" style="display: none;">User created successfully!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-10">
+                    <div class="table-responsive highlight-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- Lista de usuários será inserida aqui via JavaScript -->
                             </tbody>
                         </table>
                     </div>
@@ -275,7 +331,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            loadCarregamentos();
+            checkUserRole();
+            loadUsers();
         });
 
         document.getElementById('carregamentoForm').addEventListener('submit', function(e) {
@@ -337,52 +394,99 @@
             });
         });
 
-        function loadCarregamentos() {
-            fetch('/carregamentos')
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            if (!username || !password || !role) {
+                alert('Todos os campos são obrigatórios!');
+                return;
+            }
+
+            const user = { username, password, role };
+
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const tableBody = document.getElementById('carregamentoTableBody');
-                    if (tableBody) {
-                        tableBody.innerHTML = '';
-                        data.carregamentos.forEach(carregamento => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${formatDate(carregamento.data)}</td>
-                                <td>${carregamento.composicao}</td>
-                                <td>${carregamento.vagoes}</td>
-                                <td>${carregamento.destino}</td>
-                                <td>${carregamento.filial}</td>
-                                <td>${carregamento.material}</td>
-                                <td>${formatVolume(carregamento.volume)}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm" onclick="confirmEditCarregamento(${carregamento.id}, '${carregamento.composicao}')">Editar</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteCarregamento(${carregamento.id})">Excluir</button>
-                                </td>
-                            `;
-                            tableBody.appendChild(row);
-                        });
-                    } else {
-                        console.error('Elemento "carregamentoTableBody" não encontrado no DOM.');
-                    }
+                    document.getElementById('userForm').reset();
+                    const userMessage = document.getElementById('userMessage');
+                    userMessage.textContent = 'User created successfully!';
+                    userMessage.style.display = 'block';
+                    setTimeout(() => {
+                        userMessage.style.display = 'none';
+                    }, 3000);
+                    loadUsers();
                 } else {
-                    alert('Erro ao carregar os carregamentos: ' + data.message);
+                    alert('Erro ao criar usuário: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Erro ao carregar os carregamentos:', error);
-                alert('Erro ao carregar os carregamentos.');
+                console.error('Erro ao criar usuário:', error);
+                alert('Erro ao criar usuário.');
             });
-        }
+        });
 
-        function formatDate(dateString) {
-            const dateParts = dateString.split("-");
-            return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-        }
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchDate = document.getElementById('searchDate').value;
+            if (!searchDate) {
+                alert('Por favor, selecione uma data.');
+                return;
+            }
 
-        function formatVolume(volume) {
-            return volume.toLocaleString('pt-BR') + ' kg';
-        }
+            fetch(`/carregamentos?data=${searchDate}`)
+            .then(response => response.json())
+            .then(data => {
+                const searchResultsBody = document.getElementById('searchResultsBody');
+                searchResultsBody.innerHTML = '';
+                if (data.success) {
+                    data.carregamentos.forEach(carregamento => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${formatDate(carregamento.data)}</td>
+                            <td>${carregamento.composicao}</td>
+                            <td>${carregamento.vagoes}</td>
+                            <td>${carregamento.destino}</td>
+                            <td>${carregamento.filial}</td>
+                            <td>${carregamento.material}</td>
+                            <td>${formatVolume(carregamento.volume)}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm edit-button" onclick="confirmEditCarregamento(${carregamento.id}, '${carregamento.composicao}')">Editar</button>
+                                <button class="btn btn-danger btn-sm delete-button" onclick="deleteCarregamento(${carregamento.id})">Excluir</button>
+                            </td>
+                        `;
+                        searchResultsBody.appendChild(row);
+                    });
+
+                    fetch('/getRole')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.role === 'user') {
+                            document.querySelectorAll('.edit-button').forEach(button => button.style.display = 'none');
+                            document.querySelectorAll('.delete-button').forEach(button => button.style.display = 'none');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao verificar o papel do usuário:', error);
+                    });
+                } else {
+                    alert('Nenhum carregamento encontrado para a data selecionada.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar carregamentos:', error);
+                alert('Erro ao buscar carregamentos.');
+            });
+        });
 
         function confirmEditCarregamento(id, composicao) {
             const confirmMessage = document.getElementById('confirmMessage');
@@ -454,64 +558,98 @@
             elmnt.className += " active";
         }
 
-        function searchByDate() {
-            const searchDate = document.getElementById('searchDate').value;
-            if (!searchDate) {
-                alert('Por favor, selecione uma data.');
-                return;
-            }
-
-            console.log('Buscando carregamentos para a data:', searchDate); // Log de depuração
-
-            fetch('/carregamentos')
+        function checkUserRole() {
+            fetch('/getRole')
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    console.log('Carregamentos recebidos:', data.carregamentos); // Log de depuração
-                    const searchResults = document.getElementById('searchResults');
-                    const searchResultsBody = document.getElementById('searchResultsBody');
-                    searchResultsBody.innerHTML = '';
-                    data.carregamentos.forEach(carregamento => {
-                        if (carregamento.data === searchDate) {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${formatDate(carregamento.data)}</td>
-                                <td>${carregamento.composicao}</td>
-                                <td>${carregamento.vagoes}</td>
-                                <td>${carregamento.destino}</td>
-                                <td>${carregamento.filial}</td>
-                                <td>${carregamento.material}</td>
-                                <td>${formatVolume(carregamento.volume)}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm" onclick="confirmEditCarregamento(${carregamento.id}, '${carregamento.composicao}')">Editar</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteCarregamento(${carregamento.id})">Excluir</button>
-                                </td>
-                            `;
-                            searchResultsBody.appendChild(row);
-                        }
-                    });
-                    searchResults.style.display = 'block';
-                } else {
-                    alert('Nenhum carregamento encontrado para a data selecionada.');
+                if (data.role === 'admin') {
+                    const adminLink = document.createElement('a');
+                    adminLink.className = 'nav-link nav-link-custom';
+                    adminLink.href = '#';
+                    adminLink.onclick = () => openPage('Admin', adminLink);
+                    adminLink.textContent = 'Admin';
+                    document.querySelector('.text-center.mb-4').appendChild(adminLink);
                 }
             })
             .catch(error => {
-                console.error('Erro ao buscar carregamentos:', error);
-                alert('Erro ao buscar carregamentos.');
+                console.error('Erro ao verificar o papel do usuário:', error);
             });
         }
 
-        // Defina a aba padrão aberta
+        function loadUsers() {
+            fetch('/users')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const userTableBody = document.getElementById('userTableBody');
+                    userTableBody.innerHTML = '';
+                    data.users.forEach(user => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${user.username}</td>
+                            <td>${user.role}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="confirmDeleteUser('${user.username}')">Excluir</button>
+                            </td>
+                        `;
+                        userTableBody.appendChild(row);
+                    });
+                } else {
+                    alert('Error loading users: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading users:', error);
+                alert('Error loading users.');
+            });
+        }
+
+        function confirmDeleteUser(username) {
+            const confirmMessage = document.getElementById('confirmMessage');
+            confirmMessage.textContent = `Você realmente deseja excluir o usuário "${username}"?`;
+            const confirmButton = document.getElementById('confirmButton');
+            confirmButton.onclick = function() {
+                deleteUser(username);
+                $('#confirmModal').modal('hide');
+            };
+            $('#confirmModal').modal('show');
+        }
+
+        function deleteUser(username) {
+            fetch(`/users/${username}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadUsers();
+                } else {
+                    alert('Error deleting user: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting user:', error);
+                alert('Error deleting user.');
+            });
+        }
+
+        function formatDate(dateString) {
+            const dateParts = dateString.split("-");
+            return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+        }
+
+        function formatVolume(volume) {
+            return volume.toLocaleString('pt-BR') + ' kg';
+        }
+
         document.getElementById("defaultOpen").click();
 
-        // Função para formatar o campo de volume com pontos e adicionar 'kg'
         document.getElementById('volume').addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
-            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Adiciona pontos
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
             e.target.value = value + ' kg';
         });
 
-        // Função para forçar o campo composição a ficar em caixa alta
         document.getElementById('composicao').addEventListener('input', function (e) {
             e.target.value = e.target.value.toUpperCase();
         });
@@ -520,7 +658,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <footer class="text-center mt-4">
-        <p>Versão do sistema: 4.2.2.5</p>
+        <p>Versão do sistema: 4.3.5</p>
     </footer>
 </body>
 </html>

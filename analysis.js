@@ -88,25 +88,30 @@ function updateTotalCarregadoPlotly(carregamentos, material, year) {
         y: values,
         type: 'bar',
         text: values.map(value => value.toLocaleString('pt-BR') + ' kg'),
-        texttemplate: '%{text}',
+        texttemplate: '<b>%{text}</b>',
         textposition: 'auto',
         hoverinfo: 'text',
+        textfont: {
+            size: 14
+        },
         marker: {
             color: labels.map((_, index) => getBootstrapColor(index))
         }
     }];
 
     const layout = {
-        title: 'Total Carregado no Mês',
+        title: 'Total Expedido Mensal',
         xaxis: {
             title: 'Mês'
         },
         yaxis: {
-            showticklabels: false
-        }
+            title: 'Volume (kg)',
+            showticklabels: true
+        },
+        showlegend: false
     };
 
-    Plotly.newPlot('totalCarregadoChart', data, layout);
+    Plotly.newPlot('totalCarregadoChart', data, layout, {displayModeBar: false, staticPlot: true});
 }
 
 function updateTotalPorFilialPlotly(carregamentos, material, year) {
@@ -130,34 +135,46 @@ function updateTotalPorFilialPlotly(carregamentos, material, year) {
         y: values,
         type: 'bar',
         text: values.map(value => value.toLocaleString('pt-BR') + ' kg'),
-        texttemplate: '%{text}',
+        texttemplate: '<b>%{text}</b>',
         textposition: 'auto',
         hoverinfo: 'text',
+        textfont: {
+            size: 14
+        },
         marker: {
             color: labels.map((_, index) => getBootstrapColor(index))
         }
     }];
 
     const layout = {
-        title: 'Total expedido por Filial',
+        title: 'Total Expedido por Filial',
         xaxis: {
             title: 'Filial'
         },
         yaxis: {
-            showticklabels: false
-        }
+            title: 'Volume (kg)',
+            showticklabels: true
+        },
+        showlegend: false
     };
 
-    Plotly.newPlot('totalPorFilialChart', data, layout);
+    Plotly.newPlot('totalPorFilialChart', data, layout, {displayModeBar: false, staticPlot: true});
 }
 
 function updateQuantidadeCarregamentosPlotly(carregamentos, material, year) {
     const quantidadePorMes = {};
+    const diasCarregados = new Set();
 
     carregamentos.forEach(c => {
         if ((material !== 'todos' && c.material !== material) || (year !== 'todos' && c.data.substring(0, 4) !== year)) {
             return;
         }
+
+        const dia = c.data.substring(0, 10);
+        if (diasCarregados.has(dia)) {
+            return;
+        }
+        diasCarregados.add(dia);
 
         const mes = c.data.substring(0, 7);
         const mesFormatado = formatarMesAno(mes);
@@ -175,9 +192,12 @@ function updateQuantidadeCarregamentosPlotly(carregamentos, material, year) {
         y: values,
         type: 'bar',
         text: values.map(value => value.toLocaleString('pt-BR')),
-        texttemplate: '%{text}',
+        texttemplate: '<b>%{text}</b>',
         textposition: 'auto',
         hoverinfo: 'text',
+        textfont: {
+            size: 14
+        },
         marker: {
             color: labels.map((_, index) => getBootstrapColor(index))
         }
@@ -189,11 +209,13 @@ function updateQuantidadeCarregamentosPlotly(carregamentos, material, year) {
             title: 'Mês'
         },
         yaxis: {
-            showticklabels: false
-        }
+            title: 'Quantidade',
+            showticklabels: true
+        },
+        showlegend: false
     };
 
-    Plotly.newPlot('quantidadeCarregamentosChart', data, layout);
+    Plotly.newPlot('quantidadeCarregamentosChart', data, layout, {displayModeBar: false, staticPlot: true});
 }
 
 function updateTotalVagoesPlotly(carregamentos, material, year) {
@@ -220,25 +242,30 @@ function updateTotalVagoesPlotly(carregamentos, material, year) {
         y: values,
         type: 'bar',
         text: values.map(value => value.toLocaleString('pt-BR')),
-        texttemplate: '%{text}',
+        texttemplate: '<b>%{text}</b>',
         textposition: 'auto',
         hoverinfo: 'text',
+        textfont: {
+            size: 14
+        },
         marker: {
             color: labels.map((_, index) => getBootstrapColor(index))
         }
     }];
 
     const layout = {
-        title: 'Total de Vagões no Mês',
+        title: 'Total de Vagões Mensal',
         xaxis: {
             title: 'Mês'
         },
         yaxis: {
-            showticklabels: false
-        }
+            title: 'Número de Vagões',
+            showticklabels: true
+        },
+        showlegend: false
     };
 
-    Plotly.newPlot('totalVagoesChart', data, layout);
+    Plotly.newPlot('totalVagoesChart', data, layout, {displayModeBar: false, staticPlot: true});
 }
 
 function updateTotalPorDestinoPlotly(carregamentos, material, year) {
@@ -262,25 +289,30 @@ function updateTotalPorDestinoPlotly(carregamentos, material, year) {
         y: values,
         type: 'bar',
         text: values.map(value => value.toLocaleString('pt-BR') + ' kg'),
-        texttemplate: '%{text}',
+        texttemplate: '<b>%{text}</b>',
         textposition: 'auto',
         hoverinfo: 'text',
+        textfont: {
+            size: 14
+        },
         marker: {
             color: labels.map((_, index) => getBootstrapColor(index))
         }
     }];
 
     const layout = {
-        title: 'Volume expedido por Destino',
+        title: 'Volume Expedido por Destino',
         xaxis: {
             title: 'Destino'
         },
         yaxis: {
-            showticklabels: false
-        }
+            title: 'Volume (kg)',
+            showticklabels: true
+        },
+        showlegend: false
     };
 
-    Plotly.newPlot('totalPorDestinoChart', data, layout);
+    Plotly.newPlot('totalPorDestinoChart', data, layout, {displayModeBar: false, staticPlot: true});
 }
 
 const bootstrapColors = [
