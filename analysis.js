@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     fetch('/carregamentos')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na resposta da rede.');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 const carregamentos = data.carregamentos;

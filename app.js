@@ -99,7 +99,7 @@ function loadCarregamentos() {
     });
 
     // Ajustar visibilidade dos botões conforme o papel do usuário
-    const userRole = '<%= role %>';
+    const userRole = window.userRole; // Acesse a variável global userRole
     if (userRole === 'user') {
         document.querySelectorAll('.edit-button').forEach(button => button.style.display = 'none');
         document.querySelectorAll('.delete-button').forEach(button => button.style.display = 'none');
@@ -192,13 +192,12 @@ function searchByDate() {
         return;
     }
 
-    fetch('/carregamentos')
+    fetch(`/carregamentos?data=${searchDate}`)
     .then(response => response.json())
     .then(data => {
+        const searchResultsBody = document.getElementById('searchResultsBody');
+        searchResultsBody.innerHTML = '';
         if (data.success) {
-            const searchResults = document.getElementById('searchResults');
-            const searchResultsBody = document.getElementById('searchResultsBody');
-            searchResultsBody.innerHTML = '';
             data.carregamentos.forEach(carregamento => {
                 if (carregamento.data === searchDate) {
                     const row = document.createElement('tr');
@@ -226,6 +225,18 @@ function searchByDate() {
     .catch(error => {
         console.error('Erro ao buscar carregamentos:', error);
         alert('Erro ao buscar carregamentos.');
+    });
+
+    fetch('/getRole')
+    .then(response => response.json())
+    .then(data => {
+        if (data.role === 'user') {
+            document.querySelectorAll('.edit-button').forEach(button => button.style.display = 'none');
+            document.querySelectorAll('.delete-button').forEach(button => button.style.display = 'none');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao verificar o papel do usuário:', error);
     });
 }
 

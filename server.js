@@ -177,10 +177,7 @@ app.delete('/carregamentos/:id', isAuthenticated, isAdmin, (req, res) => {
 });
 
 // Rota para obter o papel do usuário
-app.get('/getRole', (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ success: false, message: 'Not authenticated' });
-    }
+app.get('/getRole', isAuthenticated, (req, res) => {
     db.get('SELECT role FROM users WHERE id = ?', [req.session.userId], (err, row) => {
         if (err || !row) {
             return res.status(500).json({ success: false, message: 'Failed to retrieve user role' });

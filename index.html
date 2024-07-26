@@ -335,6 +335,39 @@
             loadUsers();
         });
 
+        function checkUserRole() {
+            fetch('/getRole')
+            .then(response => response.json())
+            .then(data => {
+                if (data.role === 'admin') {
+                    const adminLink = document.createElement('a');
+                    adminLink.className = 'nav-link nav-link-custom';
+                    adminLink.href = '#';
+                    adminLink.onclick = () => openPage('Admin', adminLink);
+                    adminLink.textContent = 'Admin';
+                    document.querySelector('.text-center.mb-4').appendChild(adminLink);
+                }
+                window.userRole = data.role; // Armazena o papel do usuário
+            })
+            .catch(error => {
+                console.error('Erro ao verificar o papel do usuário:', error);
+            });
+        }
+
+        function openPage(pageName, elmnt) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("nav-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(pageName).style.display = "block";
+            elmnt.className += " active";
+        }
+
         document.getElementById('carregamentoForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const id = document.getElementById('carregamentoId').value;
@@ -394,49 +427,12 @@
             });
         });
 
-        document.getElementById('userForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
-
-            if (!username || !password || !role) {
-                alert('Todos os campos são obrigatórios!');
-                return;
-            }
-
-            const user = { username, password, role };
-
-            fetch('/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(user)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('userForm').reset();
-                    const userMessage = document.getElementById('userMessage');
-                    userMessage.textContent = 'User created successfully!';
-                    userMessage.style.display = 'block';
-                    setTimeout(() => {
-                        userMessage.style.display = 'none';
-                    }, 3000);
-                    loadUsers();
-                } else {
-                    alert('Erro ao criar usuário: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao criar usuário:', error);
-                alert('Erro ao criar usuário.');
-            });
-        });
-
         document.getElementById('searchForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            searchByDate();
+        });
+
+        function searchByDate() {
             const searchDate = document.getElementById('searchDate').value;
             if (!searchDate) {
                 alert('Por favor, selecione uma data.');
@@ -486,7 +482,16 @@
                 console.error('Erro ao buscar carregamentos:', error);
                 alert('Erro ao buscar carregamentos.');
             });
-        });
+        }
+
+        function formatDate(dateString) {
+            const dateParts = dateString.split("-");
+            return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+        }
+
+        function formatVolume(volume) {
+            return volume.toLocaleString('pt-BR') + ' kg';
+        }
 
         function confirmEditCarregamento(id, composicao) {
             const confirmMessage = document.getElementById('confirmMessage');
@@ -544,64 +549,77 @@
             }
         }
 
-        function openPage(pageName, elmnt) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("nav-link");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(pageName).style.display = "block";
-            elmnt.className += " active";
-        }
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
 
-        function checkUserRole() {
-            fetch('/getRole')
-            .then(response => response.json())
-            .then(data => {
-                if (data.role === 'admin') {
-                    const adminLink = document.createElement('a');
-                    adminLink.className = 'nav-link nav-link-custom';
-                    adminLink.href = '#';
-                    adminLink.onclick = () => openPage('Admin', adminLink);
-                    adminLink.textContent = 'Admin';
-                    document.querySelector('.text-center.mb-4').appendChild(adminLink);
-                }
+            if (!username || !password || !role) {
+                alert('Todos os campos são obrigatórios!');
+                return;
+            }
+
+            const user = { username, password, role };
+
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
             })
-            .catch(error => {
-                console.error('Erro ao verificar o papel do usuário:', error);
-            });
-        }
-
-        function loadUsers() {
-            fetch('/users')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const userTableBody = document.getElementById('userTableBody');
-                    userTableBody.innerHTML = '';
-                    data.users.forEach(user => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${user.username}</td>
-                            <td>${user.role}</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" onclick="confirmDeleteUser('${user.username}')">Excluir</button>
-                            </td>
-                        `;
-                        userTableBody.appendChild(row);
-                    });
+                    document.getElementById('userForm').reset();
+                    const userMessage = document.getElementById('userMessage');
+                    userMessage.textContent = 'User created successfully!';
+                    userMessage.style.display = 'block';
+                    setTimeout(() => {
+                        userMessage.style.display = 'none';
+                    }, 3000);
+                    loadUsers();
                 } else {
-                    alert('Error loading users: ' + data.message);
+                    alert('Erro ao criar usuário: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Error loading users:', error);
-                alert('Error loading users.');
+                console.error('Erro ao criar usuário:', error);
+                alert('Erro ao criar usuário.');
             });
+        });
+
+        function loadUsers() {
+            if (window.userRole === 'admin') {
+                fetch('/users')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const userTableBody = document.getElementById('userTableBody');
+                        userTableBody.innerHTML = '';
+                        data.users.forEach(user => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${user.username}</td>
+                                <td>${user.role}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="confirmDeleteUser('${user.username}')">Excluir</button>
+                                </td>
+                            `;
+                            userTableBody.appendChild(row);
+                        });
+                    } else {
+                        alert('Error loading users: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading users:', error);
+                    alert('Error loading users.');
+                });
+            } else {
+                console.error('Access denied: You do not have permission to view users.');
+            }
         }
 
         function confirmDeleteUser(username) {
@@ -633,23 +651,17 @@
             });
         }
 
-        function formatDate(dateString) {
-            const dateParts = dateString.split("-");
-            return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-        }
-
-        function formatVolume(volume) {
-            return volume.toLocaleString('pt-BR') + ' kg';
-        }
-
+        // Defina a aba padrão aberta
         document.getElementById("defaultOpen").click();
 
+        // Função para formatar o campo de volume com pontos e adicionar 'kg'
         document.getElementById('volume').addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            let value = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Adiciona pontos
             e.target.value = value + ' kg';
         });
 
+        // Função para forçar o campo composição a ficar em caixa alta
         document.getElementById('composicao').addEventListener('input', function (e) {
             e.target.value = e.target.value.toUpperCase();
         });
@@ -658,7 +670,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <footer class="text-center mt-4">
-        <p>Versão do sistema: 4.3.5</p>
+        <p>Versão do sistema: 4.4.0 | Powered by: Desenvolvedor N.M</p>
     </footer>
 </body>
 </html>
