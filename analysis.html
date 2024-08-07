@@ -11,11 +11,11 @@
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url("Silos.webp"); /* Substitua pelo caminho da imagem */
+            background-image: url("Silos.webp");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-attachment: fixed; /* Para que a imagem de fundo não se mova ao rolar a página */
+            background-attachment: fixed;
         }
 
         .header {
@@ -47,6 +47,37 @@
         .header img {
             height: 40px;
             margin-right: 10px;
+        }
+
+        .header .controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .controls select, .header .controls a {
+            margin-left: 20px;
+            padding: 5px 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+        }
+
+        .header .controls select {
+            border: 1px solid #ccc;
+            color: #000;
+        }
+
+        .header .controls a {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            text-decoration: none;
+            transition-duration: 0.4s;
+        }
+
+        .header .controls a:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #007bff;
         }
 
         .container {
@@ -136,30 +167,6 @@
             margin-bottom: 20px;
         }
 
-        .selection-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .selection-container label {
-            font-weight: bold;
-            margin-right: 10px;
-            font-size: 1.2rem;
-            color: #333;
-        }
-
-        .selection-container select {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            margin-right: 20px;
-            margin-bottom: 10px;
-        }
-
         .total-expedido-container {
             display: flex;
             flex-direction: column;
@@ -187,19 +194,6 @@
             color: #007bff;
         }
 
-        /* Estilo de painel eletrônico */
-        .electronic-panel {
-            background-color: black;
-            color: #00FF00;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 2rem;
-            padding: 10px 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 255, 0, 0.5);
-            text-align: center;
-            margin-top: 10px;
-        }
-
         .footer {
             background-color: #343a40;
             color: white;
@@ -220,25 +214,10 @@
                 padding: 10px;
             }
 
-            .selection-container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .selection-container select {
-                margin-right: 0;
-                margin-bottom: 10px;
-                width: 100%;
-            }
-
             .total-expedido-container {
                 width: 100%;
                 align-items: center;
                 margin-top: 10px;
-            }
-
-            .electronic-panel {
-                font-size: 1.5rem;
             }
 
             h1 {
@@ -282,25 +261,24 @@
             <img src="Data Solution.webp" alt="Logo">
         </div>
         <h1>SISTEMA DATA SOLUTION</h1>
+        <div class="controls">
+            <a href="index.html" class="btn btn-custom">Pagina de registro</a>
+            <label for="materialSelect" class="sr-only">Selecione o Material:</label>
+            <select id="materialSelect">
+                <option value="todos">Todos</option>
+                <option value="Soja">Soja</option>
+                <option value="Milho">Milho</option>
+            </select>
+            <label for="yearSelect" class="sr-only">Selecione o Ano:</label>
+            <select id="yearSelect">
+                <option value="todos">Todos</option>
+            </select>
+        </div>
     </div>
     <div class="container">
-        <a href="index.html" class="btn btn-custom my-4">Pagina de registro</a>
         <h1 class="text-center my-4">Painel de Análises</h1>
         
         <div class="selection-container">
-            <div>
-                <label for="materialSelect">Selecione o Material:</label>
-                <select id="materialSelect">
-                    <option value="todos">Todos</option>
-                    <option value="Soja">Soja</option>
-                    <option value="Milho">Milho</option>
-                </select>
-                <label for="yearSelect">Selecione o Ano:</label>
-                <select id="yearSelect">
-                    <option value="todos">Todos</option>
-                    <!-- Opções de anos serão adicionadas dinamicamente -->
-                </select>
-            </div>
             <div class="total-expedido-container">
                 <span class="total-title">Volume Total Expedido</span>
                 <div class="card shadow-sm">
