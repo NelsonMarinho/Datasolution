@@ -102,7 +102,7 @@
 
         .card-header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             font-weight: bold;
             font-size: 1.2em;
@@ -272,22 +272,19 @@
     <div class="container">
         <h1 class="text-center my-4">Painel de Análises</h1>
         
-        <div class="selection-container">
-            <div class="total-expedido-container">
-                <span class="total-title">Volume Total Expedido</span>
-                <div class="card shadow-sm">
-                    <div class="card-body bg-primary text-white electronic-panel">
-                        <span id="totalExpedido">0 kg</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5>Total Expedido Mensal</h5>
+                        <div class="total-expedido-container">
+                            <span class="total-title">Volume Total Expedido</span>
+                            <div class="card shadow-sm">
+                                <div class="card-body bg-primary text-white electronic-panel">
+                                    <span id="totalExpedido">225.429.947 kg</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="chart-container" id="totalCarregadoChart"></div>
