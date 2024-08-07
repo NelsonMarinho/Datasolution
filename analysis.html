@@ -110,6 +110,7 @@
             color: white;
             border-radius: 12px 12px 0 0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
         }
 
         .card-header.bg-success {
@@ -162,31 +163,14 @@
             margin-bottom: 20px;
         }
 
-        .total-expedido-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .total-expedido-container .card {
-            margin-bottom: 0;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .total-expedido-container .card-body {
-            padding: 10px 15px;
+        .total-expedido {
             font-size: 1.5rem;
             font-weight: bold;
-            text-align: center;
-        }
-
-        .total-expedido-container .total-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #007bff;
+            color: white;
+            background-color: #28a745;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .footer {
@@ -209,12 +193,6 @@
                 padding: 10px;
             }
 
-            .total-expedido-container {
-                width: 100%;
-                align-items: center;
-                margin-top: 10px;
-            }
-
             h1 {
                 font-size: 2rem;
             }
@@ -234,8 +212,9 @@
                 padding: 10px;
             }
 
-            .electronic-panel {
-                font-size: 1.2rem;
+            .total-expedido {
+                font-size: 1rem;
+                padding: 5px 10px;
             }
         }
 
@@ -244,7 +223,7 @@
                 height: 400px;
             }
 
-            .electronic-panel {
+            .total-expedido {
                 font-size: 1.5rem;
             }
         }
@@ -277,13 +256,8 @@
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5>Total Expedido Mensal</h5>
-                        <div class="total-expedido-container">
-                            <span class="total-title">Volume Total Expedido</span>
-                            <div class="card shadow-sm">
-                                <div class="card-body bg-primary text-white electronic-panel">
-                                    <span id="totalExpedido">225.429.947 kg</span>
-                                </div>
-                            </div>
+                        <div class="total-expedido">
+                            <span id="totalExpedido">225.429.947 kg</span>
                         </div>
                     </div>
                     <div class="card-body">
