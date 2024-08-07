@@ -51,7 +51,6 @@
 
         .container {
             padding-top: 80px;
-            text-align: center;
         }
 
         .btn-custom {
@@ -75,44 +74,40 @@
             border: 2px solid #007bff;
         }
 
-        .card {
-            margin-bottom: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ddd;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: none; /* Esconde todos os gráficos inicialmente */
-        }
-
         .card-header {
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
             font-size: 1.2em;
+            background-color: #007bff;
             color: white;
             border-radius: 12px 12px 0 0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .bg-primary {
-            background-color: #007bff;
+        .card-header.bg-success {
+            background-color: #28a745 !important;
         }
 
-        .bg-success {
-            background-color: #28a745;
+        .card-header.bg-warning {
+            background-color: #ffc107 !important;
         }
 
-        .bg-warning {
-            background-color: #ffc107;
+        .card-header.bg-info {
+            background-color: #17a2b8 !important;
         }
 
-        .bg-info {
-            background-color: #17a2b8;
+        .card-header.bg-danger {
+            background-color: #dc3545 !important;
         }
 
-        .bg-danger {
-            background-color: #dc3545;
+        .card {
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            background-color: rgba(255, 255, 255, 0.9);
         }
 
         h1 {
@@ -144,7 +139,7 @@
         .selection-container {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
@@ -293,59 +288,91 @@
         <h1 class="text-center my-4">Painel de Análises</h1>
         
         <div class="selection-container">
-            <label for="chartSelect">Selecione o Gráfico:</label>
-            <select id="chartSelect" onchange="showChart()">
-                <option value="">Selecione...</option>
-                <option value="totalCarregado">Total Expedido Mensal</option>
-                <option value="totalVagoes">Total de Vagões Mensal</option>
-                <option value="totalPorDestino">Volume expedido por Destino</option>
-                <option value="quantidadeCarregamentos">Quantidade de Carregamentos por Mês</option>
-                <option value="totalPorFilial">Total expedido por Filial</option>
-            </select>
-        </div>
-
-        <div id="totalCarregado" class="card">
-            <div class="card-header bg-primary text-white">
-                <h5>Total Expedido Mensal</h5>
+            <div>
+                <label for="materialSelect">Selecione o Material:</label>
+                <select id="materialSelect">
+                    <option value="todos">Todos</option>
+                    <option value="Soja">Soja</option>
+                    <option value="Milho">Milho</option>
+                </select>
+                <label for="yearSelect">Selecione o Ano:</label>
+                <select id="yearSelect">
+                    <option value="todos">Todos</option>
+                    <!-- Opções de anos serão adicionadas dinamicamente -->
+                </select>
             </div>
-            <div class="card-body">
-                <div class="chart-container" id="totalCarregadoChart"></div>
-            </div>
-        </div>
-
-        <div id="totalVagoes" class="card">
-            <div class="card-header bg-success text-white">
-                <h5>Total de Vagões Mensal</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" id="totalVagoesChart"></div>
+            <div class="total-expedido-container">
+                <span class="total-title">Volume Total Expedido</span>
+                <div class="card shadow-sm">
+                    <div class="card-body bg-primary text-white electronic-panel">
+                        <span id="totalExpedido">0 kg</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="totalPorDestino" class="card">
-            <div class="card-header bg-warning text-white">
-                <h5>Volume expedido por Destino</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" id="totalPorDestinoChart"></div>
-            </div>
-        </div>
-
-        <div id="quantidadeCarregamentos" class="card">
-            <div class="card-header bg-info text-white">
-                <h5>Quantidade de Carregamentos por Mês</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" id="quantidadeCarregamentosChart"></div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Total Expedido Mensal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" id="totalCarregadoChart"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="totalPorFilial" class="card">
-            <div class="card-header bg-danger text-white">
-                <h5>Total expedido por Filial</h5>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5>Total de Vagões Mensal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" id="totalVagoesChart"></div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="chart-container" id="totalPorFilialChart"></div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-white">
+                        <h5>Volume expedido por Destino</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" id="totalPorDestinoChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5>Quantidade de Carregamentos por Mês</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" id="quantidadeCarregamentosChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-danger text-white">
+                        <h5>Total expedido por Filial</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" id="totalPorFilialChart"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -355,17 +382,5 @@
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="analysis.js"></script>
-    <script>
-        function showChart() {
-            var selectedChart = document.getElementById("chartSelect").value;
-            var charts = document.getElementsByClassName("card");
-            for (var i = 0; i < charts.length; i++) {
-                charts[i].style.display = "none";
-            }
-            if (selectedChart) {
-                document.getElementById(selectedChart).style.display = "block";
-            }
-        }
-    </script>
 </body>
 </html>
